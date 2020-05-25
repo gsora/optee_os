@@ -4,57 +4,76 @@
 #include <imx-regs.h>
 #include <stdint.h>
 
-#define DCP_CTRL0_OTP_KEY          10
-#define DCP_CTRL0_CIPHER_INIT      9
-#define DCP_CTRL0_CIPHER_ENCRYPT   8
-#define DCP_CTRL0_ENABLE_CIPHER    5
-#define DCP_CTRL0_DECR_SEMAPHORE   1
-#define DCP_CTRL0_INTERRUPT_ENABL  0
-#define DCP_CTRL1_KEY_SELECT     8
-#define DCP_CTRL1_CIPHER_MODE    4
-#define DCP_CTRL1_CIPHER_SELECT  0
 #define AES128      0x0
 #define CBC         0x1
 #define UNIQUE_KEY  0xfe
-#define KEY_SIZE 32
+#define AES_BLOCK_SIZE 16
 
-/*
- *	NextCmdAddr              uint32
-	Control0                 uint32
-	Control1                 uint32
-	SourceBufferAddress      uint32
-	DestinationBufferAddress uint32
-	BufferSize               uint32
-	PayloadPointer           uint32
-	Status                   uint32
-	Pad_cgo_0                [4]byte
- */
+// inspired by https://github.com/RT-Thread/rt-thread/blob/7a9cdcd5c7991b9350f013d727eac9fd08c1104d/bsp/imx6sx/iMX6_Platform_SDK/sdk/include/mx6sl/registers/regsdcp.h
+typedef union
+{
+    uint32_t  U;
+    struct
+    {
+        unsigned INTERRUPT         :  1;
+        unsigned DECR_SEMAPHORE    :  1;
+        unsigned CHAIN             :  1;
+        unsigned CHAIN_CONTIGUOUS  :  1;
+        unsigned ENABLE_MEMCOPY    :  1;
+        unsigned ENABLE_CIPHER     :  1;
+        unsigned ENABLE_HASH       :  1;
+        unsigned ENABLE_BLIT       :  1;
+        unsigned CIPHER_ENCRYPT    :  1;
+        unsigned CIPHER_INIT       :  1;
+        unsigned OTP_KEY           :  1;
+        unsigned PAYLOAD_KEY       :  1;
+        unsigned HASH_INIT         :  1;
+        unsigned HASH_TERM         :  1;
+        unsigned CHECK_HASH        :  1;
+        unsigned HASH_OUTPUT       :  1;
+        unsigned CONSTANT_FILL     :  1;
+        unsigned TEST_SEMA_IRQ     :  1;
+        unsigned KEY_BYTESWAP      :  1;
+        unsigned KEY_WORDSWAP      :  1;
+        unsigned INPUT_BYTESWAP    :  1;
+        unsigned INPUT_WORDSWAP    :  1;
+        unsigned OUTPUT_BYTESWAP   :  1;
+        unsigned OUTPUT_WORDSWAP   :  1;
+        unsigned TAG               :  8;
+    } B;
+} hw_dcp_packet1_t;
 
-char diversifier[] = {
-	0x21, 0x74, 0x68, 0x69, 
-	0x73, 0x20, 0x69, 0x73, 
-	0x20, 0x73, 0x65, 0x63, 
-	0x75, 0x72, 0x65, 0x21 
-};
-
-char iv[] = { 
-	0x71, 0x1, 0xE4, 0x83, 
-	0x3D, 0x2, 0x20, 0xE2, 
-	0xE8, 0x99, 0x9D, 0xE3, 
-	0xB3, 0x9B, 0x9F, 0x82 
-};
+typedef union
+{
+    uint32_t  U;
+    struct
+    {
+        unsigned CIPHER_SELECT  :  4;
+        unsigned CIPHER_MODE    :  4;
+        unsigned KEY_SELECT     :  8;
+        unsigned HASH_SELECT    :  4;
+        unsigned RSVD           :  4;
+        unsigned CIPHER_CFG     :  8;
+    } B;
+} hw_dcp_packet2_t;
 
 struct dcp_work_packet {
-	uint32_t next_cmd_addr;
-	uint32_t control0;
-	uint32_t control1;
-	uint32_t src_buf_addr;
-	uint32_t dst_buf_addr;
+	uint32_t *next_cmd_addr;
+	hw_dcp_packet1_t control0;
+	hw_dcp_packet2_t control1;
+	uint32_t *src_buf_addr;
+	uint32_t *dst_buf_addr;
 	uint32_t buf_size;
-	uint32_t payload_pointer;
+	uint32_t *payload_pointer;
 	uint32_t status;
-	uint8_t	padding[4];
-} __packed;
+};
 typedef struct dcp_work_packet dcp_work_packet;
 
+struct dcp_aes_data {
+	uint8_t src[16];
+	uint8_t dst[16];
+	uint8_t iv[8];
+};
+
+typedef struct dcp_aes_data dcp_aes_data;
 #endif /* __IMX_DCP_H__ */

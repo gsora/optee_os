@@ -72,6 +72,10 @@
 #define IRAM_BASE			0x00900000
 
 #define OCOTP_BASE			0x021BC000
+#define OCOTP_CFG0			(OCOTP_BASE + 0x410)
+#define OCOTP_CFG1			(OCOTP_BASE + 0x420)
+#define OCOTP_CFG2			(OCOTP_BASE + 0x430)
+#define OCOTP_CFG3			(OCOTP_BASE + 0x440)
 
 #define GIC_BASE			0x00A00000
 #define GICD_OFFSET			0x1000
@@ -86,6 +90,22 @@
 #define GICC_OFFSET			0x100
 #define CAAM_BASE			0x02100000
 #endif
+
+#define DCP_BASE  0x02280000
+
+#define DCP_CTRL          DCP_BASE
+#define DCP_CTRL_SFTRST   31
+#define DCP_CTRL_CLKGATE  30
+
+#define DCP_STAT      DCP_BASE + 0x10
+#define DCP_STAT_CLR  DCP_BASE + 0x18
+#define DCP_STAT_IRQ  0
+
+#define DCP_CHANNELCTRL  DCP_BASE + 0x0020
+#define DCP_CH0CMDPTR    DCP_BASE + 0x0100
+#define DCP_CH0SEMA      DCP_BASE + 0x0110
+#define DCP_CH0STAT      DCP_BASE + 0x0120
+#define DCP_CH0STAT_CLR  DCP_BASE + 0x0128
 
 #define GIC_CPU_BASE			(GIC_BASE + GICC_OFFSET)
 #define GIC_DIST_BASE			(GIC_BASE + GICD_OFFSET)
